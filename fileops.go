@@ -83,7 +83,7 @@ func printProgressBar(totalBytes *int64, movedBytes *int64, done chan bool) {
 				}
 			}
 
-			fmt.Printf("\rProgreso: [%s] %.1f%% | ETA: %-6s", bar, percent, eta)
+			fmt.Printf("\rProgress: [%s] %.1f%% | ETA: %-6s", bar, percent, eta)
 		}
 	}
 }
@@ -103,7 +103,7 @@ func moveCrossDevice(src, dst string, movedBytes *int64) error {
 		return err
 	}
 
-	// Si Rename funcionó rápido (mismo dispositivo), sumamos los bytes de golpe
+	// If Rename worked quickly (same device), append bytes at once
 	if movedBytes != nil && fileSize > 0 {
 		atomic.AddInt64(movedBytes, fileSize)
 	}
@@ -142,7 +142,7 @@ func copyAndDelete(src, dst string, movedBytes *int64) error {
 		}
 	}
 
-	in.Close() // Cerrar el origen antes de borrarlo
+	in.Close() // Close source before removing it
 	return os.Remove(src)
 }
 
@@ -195,7 +195,7 @@ func moveFiles(srcClean, destDir string, wg *sync.WaitGroup, movedBytes *int64) 
 
 	info, err := os.Stat(srcClean)
 	if err != nil {
-		fmt.Printf("❌ Error al leer origen '%s': %v\n", srcClean, err)
+		fmt.Printf("❌ Error reading source '%s': %v\n", srcClean, err)
 		return
 	}
 
@@ -203,7 +203,7 @@ func moveFiles(srcClean, destDir string, wg *sync.WaitGroup, movedBytes *int64) 
 	if info.IsDir() {
 		entries, err := os.ReadDir(srcClean)
 		if err != nil {
-			fmt.Printf("❌ Error leyendo %s: %v\n", srcClean, err)
+			fmt.Printf("❌ Error reading %s: %v\n", srcClean, err)
 			return
 		}
 		for _, e := range entries {
@@ -212,7 +212,7 @@ func moveFiles(srcClean, destDir string, wg *sync.WaitGroup, movedBytes *int64) 
 				destPath := getUniqueDestPath(filepath.Join(destDir, e.Name()))
 
 				if err := moveCrossDevice(srcPath, destPath, movedBytes); err != nil {
-					fmt.Printf("\n  Error moviendo %s: %v\n", e.Name(), err)
+					fmt.Printf("\n  Error moving %s: %v\n", e.Name(), err)
 				} else {
 					count++
 				}
@@ -221,10 +221,10 @@ func moveFiles(srcClean, destDir string, wg *sync.WaitGroup, movedBytes *int64) 
 	} else {
 		destPath := getUniqueDestPath(filepath.Join(destDir, filepath.Base(srcClean)))
 		if err := moveCrossDevice(srcClean, destPath, movedBytes); err != nil {
-			fmt.Printf("\n  Error moviendo %s: %v\n", info.Name(), err)
+			fmt.Printf("\n  Error moving %s: %v\n", info.Name(), err)
 		} else {
 			count++
 		}
 	}
-	fmt.Printf("\n✅ %d archivos movidos exitosamente a -> %s\n", count, filepath.Base(destDir))
+	fmt.Printf("\n✅ %d files successfully moved to -> %s\n", count, filepath.Base(destDir))
 }

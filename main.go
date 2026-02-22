@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// readInput lee limpia terminal inputs tanto en Windows (\r\n) como Linux/Mac (\n)
+// readInput cleans terminal inputs on both Windows (\r\n) and Linux/Mac (\n)
 func readInput(reader *bufio.Reader) string {
 	input, _ := reader.ReadString('\n')
 	if runtime.GOOS == "windows" {
@@ -28,14 +28,14 @@ func main() {
 	reader := bufio.NewReader(os.Stdin)
 
 	fmt.Println("==============================================")
-	fmt.Println("=== Creador de Sesiones de Astrofotografía ===")
+	fmt.Println("=== Astrophotography Session Creator ===")
 	fmt.Println("==============================================")
 
-	fmt.Print("\nNombre del objeto capturado (ej. M81, M81 M82, NGC 4236): ")
+	fmt.Print("\nCaptured object name (e.g. M81, M81 M82, NGC 4236): ")
 	targetInput := readInput(reader)
 
 	if targetInput == "" {
-		fmt.Println("Debes ingresar un nombre válido.")
+		fmt.Println("You must enter a valid name.")
 		return
 	}
 
@@ -44,7 +44,7 @@ func main() {
 	var commonNames []string
 	allHaveCommonName := true
 
-	fmt.Printf("\nBuscando información para '%s' en SIMBAD/Sesame...\n", targetInput)
+	fmt.Printf("\nSearching for information on '%s' in SIMBAD/Sesame...\n", targetInput)
 
 	for _, t := range targets {
 		formatted := formatTargetName(t)
@@ -54,14 +54,14 @@ func main() {
 		if len(tOptions) > 0 {
 			if len(tOptions) == 1 {
 				techName = tOptions[0]
-				fmt.Printf("-> [%s] Usando designación técnica principal: %s\n", t, techName)
+				fmt.Printf("-> [%s] Using primary technical designation: %s\n", t, techName)
 			} else {
-				fmt.Printf("\nSe encontraron múltiples designaciones de catálogo para [%s]:\n", t)
+				fmt.Printf("\nMultiple catalog designations found for [%s]:\n", t)
 				for i, opt := range tOptions {
 					fmt.Printf("  %d) %s\n", i+1, opt)
 				}
-				fmt.Printf("  %d) Mantener original: %s\n", len(tOptions)+1, formatted)
-				fmt.Printf("¿Qué nomenclatura prefieres usar para la carpeta principal? (1-%d) [1]: ", len(tOptions)+1)
+				fmt.Printf("  %d) Keep original: %s\n", len(tOptions)+1, formatted)
+				fmt.Printf("Which nomenclature do you prefer for the main folder? (1-%d) [1]: ", len(tOptions)+1)
 
 				optInput := readInput(reader)
 				if optInput == "" {
@@ -73,7 +73,7 @@ func main() {
 				}
 			}
 		} else if cName == "" {
-			fmt.Printf("-> Objeto [%s] no encontrado o sin nombre común (sólo usaré '%s').\n", t, formatted)
+			fmt.Printf("-> Object [%s] not found or without common name (only using '%s').\n", t, formatted)
 		}
 
 		resolvedTechNames = append(resolvedTechNames, techName)
@@ -103,7 +103,7 @@ func main() {
 
 	baseDir, err := os.Getwd()
 	if err != nil {
-		fmt.Println("Error obteniendo el directorio actual:", err)
+		fmt.Println("Error getting current directory:", err)
 		return
 	}
 
@@ -131,52 +131,52 @@ func main() {
 
 	if similarFolder != "" && similarFolder != finalTargetFolder {
 		fmt.Println()
-		fmt.Printf("⚠️  Se encontró una carpeta existente muy similar: '%s'\n", similarFolder)
-		fmt.Printf("    El nuevo formato estandarizado es: '%s'\n", finalTargetFolder)
-		fmt.Println("\n¿Qué deseas hacer?")
-		fmt.Println("  1) Usar la carpeta existente tal como está y agregar la nueva sesión ahí dentro.")
-		fmt.Printf("  2) Renombrar la carpeta existente a '%s' y agregar la nueva sesión ahí.\n", finalTargetFolder)
-		fmt.Printf("  3) Ignorar y crear '%s' como una carpeta completamente nueva.\n", finalTargetFolder)
+		fmt.Printf("⚠️  An existing very similar folder was found: '%s'\n", similarFolder)
+		fmt.Printf("    The new standardized format is: '%s'\n", finalTargetFolder)
+		fmt.Println("\nWhat do you want to do?")
+		fmt.Println("  1) Use the existing folder as is and add the new session inside.")
+		fmt.Printf("  2) Rename the existing folder to '%s' and add the new session there.\n", finalTargetFolder)
+		fmt.Printf("  3) Ignore and create '%s' as a completely new folder.\n", finalTargetFolder)
 
 		for {
-			fmt.Print("Elige una opción (1/2/3) [1]: ")
+			fmt.Print("Choose an option (1/2/3) [1]: ")
 			resp := readInput(reader)
 
 			if resp == "" || resp == "1" {
 				finalTargetFolder = similarFolder
-				fmt.Printf("-> Operaremos dentro de: '%s'\n", finalTargetFolder)
+				fmt.Printf("-> We will operate inside: '%s'\n", finalTargetFolder)
 				break
 			} else if resp == "2" {
 				oldPath := filepath.Join(baseDir, similarFolder)
 				newPath := filepath.Join(baseDir, finalTargetFolder)
 				err := os.Rename(oldPath, newPath)
 				if err != nil {
-					fmt.Printf("-> Error al renombrar la carpeta: %v\n", err)
-					fmt.Println("-> Operaremos con el nombre original por seguridad.")
+					fmt.Printf("-> Error renaming the folder: %v\n", err)
+					fmt.Println("-> We will operate with the original name for safety.")
 					finalTargetFolder = similarFolder
 				} else {
-					fmt.Printf("-> ¡Carpeta renombrada exitosamente a '%s'!\n", finalTargetFolder)
+					fmt.Printf("-> Folder successfully renamed to '%s'!\n", finalTargetFolder)
 				}
 				break
 			} else if resp == "3" {
-				fmt.Printf("-> Crearemos una carpeta nueva: '%s'\n", finalTargetFolder)
+				fmt.Printf("-> We will create a new folder: '%s'\n", finalTargetFolder)
 				break
 			} else {
-				fmt.Println("Opción inválida.")
+				fmt.Println("Invalid option.")
 			}
 		}
 	}
 
 	fmt.Println("\n----------------------------------------------")
-	fmt.Println("Introduce la fecha de captura. Opciones:")
+	fmt.Println("Enter the capture date. Options:")
 	ahora := time.Now()
-	hoyStr := fmt.Sprintf("%d %s", ahora.Day(), mesesEs[int(ahora.Month())])
+	hoyStr := fmt.Sprintf("%d %s", ahora.Day(), monthNames[int(ahora.Month())])
 	esteAñoStr := fmt.Sprintf("%d", ahora.Year())
 
-	fmt.Printf(" [ENTER vacío] -> Usa hoy: %s (Año: %s)\n", hoyStr, esteAñoStr)
-	fmt.Printf(" '12 feb'      -> Usa esa fecha (Año: %s)\n", esteAñoStr)
-	fmt.Println(" '12 feb 2025' -> Usa esa fecha y ese año")
-	fmt.Print("Fecha: ")
+	fmt.Printf(" [Empty ENTER] -> Use today: %s (Year: %s)\n", hoyStr, esteAñoStr)
+	fmt.Printf(" '12 feb'      -> Use this date (Year: %s)\n", esteAñoStr)
+	fmt.Println(" '12 feb 2025' -> Use this date and year")
+	fmt.Print("Date: ")
 
 	finalDate := readInput(reader)
 	finalYear := esteAñoStr
@@ -210,18 +210,18 @@ func main() {
 
 		if hasFiles {
 			fmt.Println("\n" + strings.Repeat("=", 50))
-			fmt.Println("🚨 ADVERTENCIA: SESIÓN EXISTENTE DETECTADA 🚨")
+			fmt.Println("🚨 WARNING: EXISTING SESSION DETECTED 🚨")
 			fmt.Println(strings.Repeat("=", 50))
-			fmt.Printf("Ya existe una captura para '%s' en la fecha %s %s.\n", finalTargetFolder, finalDate, finalYear)
-			fmt.Printf("Ruta: %s\n", targetPath)
-			fmt.Println("Además, la carpeta YA CONTIENE ARCHIVOS adentro (fotos, logs, etc).")
-			fmt.Println("Tomar el mismo objeto, 2 veces, en el mismo día exacto es poco común.")
+			fmt.Printf("A capture for '%s' already exists on %s %s.\n", finalTargetFolder, finalDate, finalYear)
+			fmt.Printf("Path: %s\n", targetPath)
+			fmt.Println("In addition, the folder ALREADY CONTAINS FILES inside (photos, logs, etc).")
+			fmt.Println("Taking the same object, 2 times, on the exact same day is unusual.")
 
-			fmt.Print("\n¿Estás seguro de que deseas mezclar sesiones nuevas en esta fecha? (y/n) [n]: ")
+			fmt.Print("\nAre you sure you want to mix new sessions on this date? (y/n) [n]: ")
 			resp := strings.ToLower(readInput(reader))
 			if resp != "y" {
-				fmt.Println("Operación cancelada. (No se creó ni modificó ninguna carpeta).")
-				fmt.Println("\nPresiona Enter para salir...")
+				fmt.Println("Operation canceled. (No folder was created or modified).")
+				fmt.Println("\nPress Enter to exit...")
 				readInput(reader)
 				return
 			}
@@ -232,22 +232,22 @@ func main() {
 		folderPath := filepath.Join(targetPath, filepath.FromSlash(folder))
 		err := os.MkdirAll(folderPath, 0755)
 		if err != nil {
-			fmt.Printf("❌ Error creando subcarpeta %s: %v\n", folder, err)
+			fmt.Printf("❌ Error creating subfolder %s: %v\n", folder, err)
 			return
 		}
 	}
 
-	fmt.Println("\n✅ ¡Estructura generada exitosamente!")
-	fmt.Printf("📁 Ruta creada: %s\n", targetPath)
-	fmt.Printf("📂 Subcarpetas generadas: %s\n", strings.Join(subfolders, ", "))
+	fmt.Println("\n✅ Structure successfully generated!")
+	fmt.Printf("📁 Path created: %s\n", targetPath)
+	fmt.Printf("📂 Subfolders generated: %s\n", strings.Join(subfolders, ", "))
 
-	fmt.Print("\n¿Deseas MOVER tus fotos (Lights/Flats) hacia estas nuevas carpetas? (y/n) [n]: ")
+	fmt.Print("\nDo you want to MOVE your photos (Lights/Flats) to these new folders? (y/n) [n]: ")
 	respMove := strings.ToLower(readInput(reader))
 	if respMove == "y" {
-		fmt.Print("\nArrastra aquí la CARPETA de tus Lights (o deja vacío para saltar): ")
+		fmt.Print("\nDrag your Lights FOLDER here (or leave empty to skip): ")
 		lightsSrc := cleanPath(readInput(reader))
 
-		fmt.Print("Arrastra aquí la CARPETA de tus Flats (o deja vacío para saltar): ")
+		fmt.Print("Drag your Flats FOLDER here (or leave empty to skip): ")
 		flatsSrc := cleanPath(readInput(reader))
 
 		if lightsSrc != "" || flatsSrc != "" {
@@ -260,15 +260,15 @@ func main() {
 			}
 
 			if hasDuplicates {
-				fmt.Print("\n⚠️  ADVERTENCIA: Se detectaron posibles duplicados en el destino. Se renombrarán anexando el sufijo _1, _2... ¿Deseas continuar y duplicarlos? (y/n) [n]: ")
+				fmt.Print("\n⚠️  WARNING: Possible duplicates detected in destination. They will be renamed by appending _1, _2... Do you wish to continue and duplicate them? (y/n) [n]: ")
 				respDup := strings.ToLower(readInput(reader))
 				if respDup != "y" {
-					fmt.Println("Operación de movimiento de archivos cancelada.")
+					fmt.Println("File move operation canceled.")
 					goto END_MOVE
 				}
 			}
 
-			fmt.Println("\nPreparando archivos para mover...")
+			fmt.Println("\nPreparing files to move...")
 			var totalBytes int64
 			var movedBytes int64
 
@@ -279,7 +279,7 @@ func main() {
 				totalBytes += calculateTotalSize(flatsSrc)
 			}
 
-			fmt.Println("Comenzando transferencia...")
+			fmt.Println("Starting transfer...")
 			var wg sync.WaitGroup
 
 			doneChan := make(chan bool)
@@ -297,12 +297,12 @@ func main() {
 			wg.Wait()
 			doneChan <- true
 
-			fmt.Printf("\rProgreso: [==================================================] 100%% | ETA: 0s          \n")
-			fmt.Println("\n¡Proceso de movimiento finalizado!")
+			fmt.Printf("\rProgress: [==================================================] 100%% | ETA: 0s          \n")
+			fmt.Println("\nMove process completed!")
 		}
 	}
 
 END_MOVE:
-	fmt.Println("\nPresiona Enter para salir...")
+	fmt.Println("\nPress Enter to exit...")
 	readInput(reader)
 }

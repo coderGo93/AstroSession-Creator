@@ -12,7 +12,7 @@ import (
 
 const sesameAPIURL = "http://cdsweb.u-strasbg.fr/cgi-bin/nph-sesame/-oI/A?"
 
-// querySesame busca el objeto astronómico en el API de CDS Sesame
+// querySesame searches for the astronomical object in the CDS Sesame API
 func querySesame(searchInput string) (commonName string, technicalOptions []string) {
 	targetClean := strings.TrimSpace(searchInput)
 	apiURL := sesameAPIURL + url.QueryEscape(targetClean)
@@ -41,7 +41,7 @@ func querySesame(searchInput string) (commonName string, technicalOptions []stri
 
 	lines := strings.Split(string(bodyBytes), "\n")
 	found := false
-	otype := "Objeto astronómico"
+	otype := "Astronomical Object"
 	var allCommonNames []string
 
 	for _, line := range lines {
@@ -59,7 +59,7 @@ func querySesame(searchInput string) (commonName string, technicalOptions []stri
 
 			if strings.HasPrefix(valTrim, "NAME ") {
 				possibleName := strings.TrimPrefix(valTrim, "NAME ")
-				// Ignorar si el "NAME" es en realidad una designación técnica disfrazada (ej. "M 81*")
+				// Ignore if "NAME" is actually a disguised technical designation (e.g. "M 81*")
 				isTech := regexp.MustCompile(`^(?i)(M|NGC|IC)\s*\d+\*?$`).MatchString(possibleName)
 				if !isTech && !strings.Contains(possibleName, "*") {
 					allCommonNames = append(allCommonNames, possibleName)
@@ -100,9 +100,9 @@ func querySesame(searchInput string) (commonName string, technicalOptions []stri
 	commonName = selectBestCommonName(allCommonNames)
 
 	if found {
-		fmt.Printf("-> ¡Objeto encontrado! Tipo: %s\n", otype)
+		fmt.Printf("-> Object found! Type: %s\n", otype)
 		if commonName != "" {
-			fmt.Printf("-> Nombre común mapeado: %s\n", commonName)
+			fmt.Printf("-> Mapped common name: %s\n", commonName)
 		}
 	}
 
@@ -117,7 +117,7 @@ func selectBestCommonName(names []string) string {
 		return names[0]
 	}
 
-	// Priorizar nombres que tengan palabras clave de objetos astronómicos reales o nombres muy populares.
+	// Prioritize names that have keywords of real astronomical objects or popular names.
 	keywords := []string{"galaxy", "nebula", "cluster", "group", "object", "bode", "cigar", "andromeda", "orion", "pleiades", "rosette"}
 	for _, name := range names {
 		lowerName := strings.ToLower(name)
@@ -128,7 +128,7 @@ func selectBestCommonName(names []string) string {
 		}
 	}
 
-	// Si no hay palabras clave obvias, asume que el nombre más largo es la descripción más "humana" vs acrónimos cortos como UMa A
+	// If there are no obvious keywords, assume the longest name is the most "human" description vs short acronyms like UMa A
 	best := names[0]
 	for _, name := range names {
 		if len(name) > len(best) {
