@@ -30,7 +30,11 @@ You do NOT need to install Go to use this tool!
    - **Windows** (`AstroSession-Creator_windows_x64.exe`)
    - **Linux** (`AstroSession-Creator_linux_x64`)
 3. Place the executable file in the root directory where you want your astrophotography objects to be generated.
-4. Open your terminal, navigate to that folder, and run it. (e.g., `./AstroSession-Creator_mac_intel`)
+4. **Mac & Linux Users Only:** Open your terminal, navigate to that folder, and grant execution permissions:
+   ```bash
+   chmod +x AstroSession-Creator_mac_intel
+   ```
+5. Run the tool from the terminal: `./AstroSession-Creator_mac_intel` (or double click it on Windows).
 
 > **Note for macOS Users:**
 > Since this open-source tool isn't signed with a paid Apple Developer certificate, macOS Gatekeeper might block it saying *"Apple could not verify [App] is free of malware"*.
