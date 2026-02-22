@@ -22,8 +22,8 @@ go.work.sum
 .DS_Store
 
 # Our Specific Compiled Binaries
-crear_sesion
-crear_sesion_mac_intel
-crear_sesion_mac_silicon
-crear_sesion_windows_x64.exe
-crear_sesion_linux_x64
+AstroSession-Creator
+AstroSession-Creator_mac_intel
+AstroSession-Creator_mac_silicon
+AstroSession-Creator_windows_x64.exe
+AstroSession-Creator_linux_x64

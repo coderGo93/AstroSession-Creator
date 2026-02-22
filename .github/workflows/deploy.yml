@@ -25,19 +25,19 @@ jobs:
         env:
           GOOS: windows
           GOARCH: amd64
-        run: go build -o crear_sesion_windows_x64.exe .
+        run: go build -o AstroSession-Creator_windows_x64.exe .
 
       - name: Compile Linux (x64)
         env:
           GOOS: linux
           GOARCH: amd64
-        run: go build -o crear_sesion_linux_x64 .
+        run: go build -o AstroSession-Creator_linux_x64 .
 
       - name: Compile macOS (Intel)
         env:
           GOOS: darwin
           GOARCH: amd64
-        run: go build -o crear_sesion_mac_intel .
+        run: go build -o AstroSession-Creator_mac_intel .
         
       - name: Auto-Release
         uses: softprops/action-gh-release@v2
@@ -46,8 +46,8 @@ jobs:
           name: "Release ${{ github.ref_name }}"
           make_latest: true
           files: |
-            crear_sesion_windows_x64.exe
-            crear_sesion_linux_x64
-            crear_sesion_mac_intel
+            AstroSession-Creator_windows_x64.exe
+            AstroSession-Creator_linux_x64
+            AstroSession-Creator_mac_intel
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

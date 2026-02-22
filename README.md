@@ -1,6 +1,6 @@
 # AstroSession Creator
 
-AuraSession Creator is an ultra-fast, standalone CLI tool written in Go that automates the creation of folder structures for astrophotography sessions. It intelligently queries the CDS Sesame/SIMBAD API to resolve common and technical names for celestial objects, preventing duplicate captures and organizing your post-processing pipeline.
+AstroSession Creator is an ultra-fast, standalone CLI tool written in Go that automates the creation of folder structures for astrophotography sessions. It intelligently queries the CDS Sesame/SIMBAD API to resolve common and technical names for celestial objects, preventing duplicate captures and organizing your post-processing pipeline.
 
 ## Features
 - **Intelligent Naming**: Automatically queries SIMBAD for common conversational names (e.g. converting `M81 M82` into `M81_M82 (Bode's & Cigar Galaxies)`).
@@ -26,9 +26,9 @@ M81_M82 (Bode's & Cigar Galaxies)/
 You do NOT need to install Go to use this tool!
 1. Go to the [Releases](https://github.com/coderGo93/AstroSession-Creator/releases) page on this repository.
 2. Download the binary that matches your operating system:
-   - **macOS** (`mac_intel` for Intel and Rosetta on Silicon Macs)
-   - **Windows** (`windows_x64.exe`)
-   - **Linux** (`linux_x64`)
+   - **macOS** (`AstroSession-Creator_mac_intel` for Intel and Rosetta on Silicon Macs)
+   - **Windows** (`AstroSession-Creator_windows_x64.exe`)
+   - **Linux** (`AstroSession-Creator_linux_x64`)
 3. Place the executable file in the root directory where you want your astrophotography objects to be generated.
 4. Double click it!
 
