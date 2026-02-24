@@ -241,7 +241,7 @@ func main() {
 	fmt.Printf("📁 Path created: %s\n", targetPath)
 	fmt.Printf("📂 Subfolders generated: %s\n", strings.Join(subfolders, ", "))
 
-	fmt.Print("\nDo you want to MOVE your photos (Lights/Flats) to these new folders? (y/n) [n]: ")
+	fmt.Print("\nDo you want to MOVE your files (Lights/Flats/Logs) to these new folders? (y/n) [n]: ")
 	respMove := strings.ToLower(readInput(reader))
 	if respMove == "y" {
 		fmt.Print("\nDrag your Lights FOLDER here (or leave empty to skip): ")
@@ -250,12 +250,18 @@ func main() {
 		fmt.Print("Drag your Flats FOLDER here (or leave empty to skip): ")
 		flatsSrc := cleanPath(readInput(reader))
 
-		if lightsSrc != "" || flatsSrc != "" {
+		fmt.Print("Drag your Logs FOLDER here (or leave empty to skip): ")
+		logsSrc := cleanPath(readInput(reader))
+
+		if lightsSrc != "" || flatsSrc != "" || logsSrc != "" {
 			hasDuplicates := false
 			if lightsSrc != "" && checkDuplicates(lightsSrc, filepath.Join(targetPath, "Lights")) {
 				hasDuplicates = true
 			}
 			if flatsSrc != "" && checkDuplicates(flatsSrc, filepath.Join(targetPath, "Flats")) {
+				hasDuplicates = true
+			}
+			if logsSrc != "" && checkDuplicates(logsSrc, filepath.Join(targetPath, "Logs")) {
 				hasDuplicates = true
 			}
 
@@ -278,6 +284,9 @@ func main() {
 			if flatsSrc != "" {
 				totalBytes += calculateTotalSize(flatsSrc)
 			}
+			if logsSrc != "" {
+				totalBytes += calculateTotalSize(logsSrc)
+			}
 
 			fmt.Println("Starting transfer...")
 			var wg sync.WaitGroup
@@ -292,6 +301,10 @@ func main() {
 			if flatsSrc != "" {
 				wg.Add(1)
 				go moveFiles(flatsSrc, filepath.Join(targetPath, "Flats"), &wg, &movedBytes)
+			}
+			if logsSrc != "" {
+				wg.Add(1)
+				go moveFiles(logsSrc, filepath.Join(targetPath, "Logs"), &wg, &movedBytes)
 			}
 
 			wg.Wait()
