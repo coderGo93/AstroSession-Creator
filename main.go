@@ -193,11 +193,29 @@ func main() {
 		}
 	}
 
-	targetPath := filepath.Join(baseDir, finalTargetFolder, finalYear, finalDate)
+	targetRoot := filepath.Join(baseDir, finalTargetFolder)
 
-	if _, err := os.Stat(targetPath); err == nil {
+	var finalDay, finalMonth string
+	parts := strings.Split(finalDate, " ")
+	if len(parts) >= 2 {
+		finalDay = parts[0]
+		// Capitalize the first letter of the month to enforce standard nomenclature
+		rawMonth := parts[1]
+		if len(rawMonth) > 0 {
+			finalMonth = strings.ToUpper(rawMonth[:1]) + strings.ToLower(rawMonth[1:])
+		} else {
+			finalMonth = rawMonth
+		}
+	} else {
+		finalDay = "0"
+		finalMonth = "Unknown"
+	}
+
+	capturePath := filepath.Join(targetRoot, finalYear, finalMonth, "Night_"+finalDay)
+
+	if _, err := os.Stat(capturePath); err == nil {
 		hasFiles := false
-		err = filepath.WalkDir(targetPath, func(path string, d os.DirEntry, err error) error {
+		err = filepath.WalkDir(capturePath, func(path string, d os.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
@@ -212,8 +230,8 @@ func main() {
 			fmt.Println("\n" + strings.Repeat("=", 50))
 			fmt.Println("🚨 WARNING: EXISTING SESSION DETECTED 🚨")
 			fmt.Println(strings.Repeat("=", 50))
-			fmt.Printf("A capture for '%s' already exists on %s %s.\n", finalTargetFolder, finalDate, finalYear)
-			fmt.Printf("Path: %s\n", targetPath)
+			fmt.Printf("A capture for '%s' already exists on Night_%s of %s %s.\n", finalTargetFolder, finalDay, finalMonth, finalYear)
+			fmt.Printf("Path: %s\n", capturePath)
 			fmt.Println("In addition, the folder ALREADY CONTAINS FILES inside (photos, logs, etc).")
 			fmt.Println("Taking the same object, 2 times, on the exact same day is unusual.")
 
@@ -228,18 +246,31 @@ func main() {
 		}
 	}
 
-	for _, folder := range subfolders {
-		folderPath := filepath.Join(targetPath, filepath.FromSlash(folder))
+	// Create processing folders at the root (PixInsight, Final)
+	for _, folder := range processingSubfolders {
+		folderPath := filepath.Join(targetRoot, filepath.FromSlash(folder))
 		err := os.MkdirAll(folderPath, 0755)
 		if err != nil {
-			fmt.Printf("❌ Error creating subfolder %s: %v\n", folder, err)
+			fmt.Printf("❌ Error creating processing subfolder %s: %v\n", folder, err)
+			return
+		}
+	}
+
+	// Create capture folders under the specific night (Lights, Flats, etc.)
+	for _, folder := range captureSubfolders {
+		folderPath := filepath.Join(capturePath, filepath.FromSlash(folder))
+		err := os.MkdirAll(folderPath, 0755)
+		if err != nil {
+			fmt.Printf("❌ Error creating capture subfolder %s: %v\n", folder, err)
 			return
 		}
 	}
 
 	fmt.Println("\n✅ Structure successfully generated!")
-	fmt.Printf("📁 Path created: %s\n", targetPath)
-	fmt.Printf("📂 Subfolders generated: %s\n", strings.Join(subfolders, ", "))
+	fmt.Printf("📁 Target Root: %s\n", targetRoot)
+	fmt.Printf("📂 Processing folders: %s\n", strings.Join(processingSubfolders, ", "))
+	fmt.Printf("📁 Capture Path: %s\n", capturePath)
+	fmt.Printf("📂 Capture folders: %s\n", strings.Join(captureSubfolders, ", "))
 
 	fmt.Print("\nDo you want to MOVE your files (Lights/Flats/Logs) to these new folders? (y/n) [n]: ")
 	respMove := strings.ToLower(readInput(reader))
@@ -255,13 +286,13 @@ func main() {
 
 		if lightsSrc != "" || flatsSrc != "" || logsSrc != "" {
 			hasDuplicates := false
-			if lightsSrc != "" && checkDuplicates(lightsSrc, filepath.Join(targetPath, "Lights")) {
+			if lightsSrc != "" && checkDuplicates(lightsSrc, filepath.Join(capturePath, "Lights")) {
 				hasDuplicates = true
 			}
-			if flatsSrc != "" && checkDuplicates(flatsSrc, filepath.Join(targetPath, "Flats")) {
+			if flatsSrc != "" && checkDuplicates(flatsSrc, filepath.Join(capturePath, "Flats")) {
 				hasDuplicates = true
 			}
-			if logsSrc != "" && checkDuplicates(logsSrc, filepath.Join(targetPath, "Logs")) {
+			if logsSrc != "" && checkDuplicates(logsSrc, filepath.Join(capturePath, "Logs")) {
 				hasDuplicates = true
 			}
 
@@ -296,15 +327,15 @@ func main() {
 
 			if lightsSrc != "" {
 				wg.Add(1)
-				go moveFiles(lightsSrc, filepath.Join(targetPath, "Lights"), &wg, &movedBytes)
+				go moveFiles(lightsSrc, filepath.Join(capturePath, "Lights"), &wg, &movedBytes)
 			}
 			if flatsSrc != "" {
 				wg.Add(1)
-				go moveFiles(flatsSrc, filepath.Join(targetPath, "Flats"), &wg, &movedBytes)
+				go moveFiles(flatsSrc, filepath.Join(capturePath, "Flats"), &wg, &movedBytes)
 			}
 			if logsSrc != "" {
 				wg.Add(1)
-				go moveFiles(logsSrc, filepath.Join(targetPath, "Logs"), &wg, &movedBytes)
+				go moveFiles(logsSrc, filepath.Join(capturePath, "Logs"), &wg, &movedBytes)
 			}
 
 			wg.Wait()
