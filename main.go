@@ -199,6 +199,10 @@ func main() {
 	parts := strings.Split(finalDate, " ")
 	if len(parts) >= 2 {
 		finalDay = parts[0]
+		// Zero-pad single-digit days (e.g. "5" -> "05")
+		if len(finalDay) == 1 {
+			finalDay = "0" + finalDay
+		}
 		// Capitalize the first letter of the month to enforce standard nomenclature
 		rawMonth := parts[1]
 		if len(rawMonth) > 0 {
@@ -207,7 +211,7 @@ func main() {
 			finalMonth = rawMonth
 		}
 	} else {
-		finalDay = "0"
+		finalDay = "00"
 		finalMonth = "Unknown"
 	}
 
