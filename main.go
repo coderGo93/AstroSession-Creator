@@ -266,11 +266,23 @@ func main() {
 		}
 	}
 
+	// Create rejected mirror structure at baseDir level (sibling to object folders)
+	rejectedBase := filepath.Join(baseDir, "Rejected", finalTargetFolder, finalYear, finalMonth, "Night_"+finalDay)
+	for _, folder := range rejectedSubfolders {
+		folderPath := filepath.Join(rejectedBase, folder)
+		err := os.MkdirAll(folderPath, 0755)
+		if err != nil {
+			fmt.Printf("❌ Error creating rejected subfolder %s: %v\n", folder, err)
+			return
+		}
+	}
+
 	fmt.Println("\n✅ Structure successfully generated!")
 	fmt.Printf("📁 Target Root: %s\n", targetRoot)
 	fmt.Printf("📂 Processing folders: %s\n", strings.Join(processingSubfolders, ", "))
 	fmt.Printf("📁 Capture Path: %s\n", capturePath)
 	fmt.Printf("📂 Capture folders: %s\n", strings.Join(captureSubfolders, ", "))
+	fmt.Printf("🗑️  Rejected Path: %s\n", rejectedBase)
 
 	fmt.Print("\nDo you want to MOVE your files (Lights/Flats/Logs) to these new folders? (y/n) [n]: ")
 	respMove := strings.ToLower(readInput(reader))
